@@ -4,146 +4,185 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>レトロ掲示板＆ブログ</title>
-  <!-- marked.js CDN（Markdown → HTML 変換用） -->
+  <!-- Markdown → HTML 変換用 marked.js -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
-    /* 全体のレトロ感（昔ながらの掲示板風） */
+    /* 全体設定：背景白・文字オレンジ・モノスペース体 */
     body {
-      background-color: #f0e68c; /* 和紙風の明るい色 */
-      font-family: "Courier New", Courier, monospace;
       margin: 0;
       padding: 0;
+      background: #ffffff;
+      font-family: "Courier New", Courier, monospace;
+      color: orange;
     }
-    header {
-      background-color: #003366;
-      color: #fff;
-      padding: 1rem;
-      text-align: center;
+    /* 固定ヘッダー */
+    .fixed-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      background: #ffffff;
+      z-index: 1000;
+      border-bottom: 2px solid orange;
     }
-    nav {
+    /* ヘッダー上部：横一列に画像を繰り返し表示 */
+    .header-image-row {
+      height: 40px;
+      background-image: url('https://sanlabo.net/images/A00000859.jpg?1384752427');
+      background-repeat: repeat-x;
+      background-size: auto 40px;
+    }
+    /* ヘッダー下部：重ねる文字とホームボタン */
+    .header-overlay {
+      position: relative;
       display: flex;
-      justify-content: center;
-      background-color: #336699;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      height: 40px;
+      margin-top: -20px; /* 画像と重なるように */
     }
-    nav button {
+    .header-title {
+      font-size: 24px;
+      font-weight: bold;
+      color: orange;
+    }
+    .action-btn {
       background: none;
-      border: none;
-      padding: 1rem 2rem;
-      font-size: 1rem;
-      color: #fff;
+      border: 1px solid orange;
+      color: orange;
+      padding: 5px 10px;
       cursor: pointer;
+      font-size: 14px;
     }
-    nav button.active {
-      background-color: #003366;
+    /* 固定左サイドバー */
+    .sidebar {
+      position: fixed;
+      top: 80px; /* ヘッダー下部から */
+      left: 0;
+      width: 200px;
+      bottom: 0;
+      background: #ffffff;
+      border-right: 2px solid orange;
+      padding: 10px;
+      box-sizing: border-box;
     }
-    .container {
-      max-width: 800px;
-      margin: 2rem auto;
-      padding: 1rem;
-      background-color: #fff;
-      border: 2px solid #003366;
+    .sidebar h2 {
+      margin-top: 0;
+      font-size: 18px;
     }
-    /* 掲示板投稿用スタイル */
-    .post {
-      border-bottom: 1px dashed #ccc;
-      padding: 1rem 0;
-    }
-    .post:last-child {
-      border-bottom: none;
-    }
-    .post h2 {
-      font-size: 1.2rem;
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
       margin: 0;
-      color: #003366;
     }
-    .post p.date {
-      font-size: 0.8rem;
-      color: #666;
-      margin: 0.5rem 0;
+    .sidebar li {
+      margin: 10px 0;
     }
-    /* ブログ投稿一覧用スタイル */
-    .blog-post {
-      border-bottom: 1px dashed #ccc;
-      padding: 1rem 0;
-      cursor: pointer;
+    .sidebar a {
+      text-decoration: none;
+      color: orange;
+      font-weight: bold;
     }
-    .blog-post:last-child {
-      border-bottom: none;
+    .sidebar a.active {
+      text-decoration: underline;
     }
-    .blog-post h3 {
-      font-size: 1.1rem;
-      margin: 0;
-      color: #003366;
+    /* メインコンテンツ（ヘッダー・サイドバー分の余白を確保） */
+    .main-content {
+      margin-left: 220px;
+      margin-top: 80px;
+      padding: 20px;
     }
-    .blog-post:hover {
-      background-color: #f9f9f9;
-    }
-    /* ボタンスタイル */
-    button.action-btn {
-      display: block;
-      margin: 1rem 0;
-      padding: 0.5rem 1rem;
-      background-color: #003366;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-    /* ブログ詳細表示用 */
-    #blog-detail {
+    /* 各セクション */
+    .content-section {
       display: none;
     }
-    #blog-detail h2 {
-      color: #003366;
+    .content-section h2 {
+      margin-top: 0;
     }
-    #back-button {
-      margin-top: 1rem;
-      padding: 0.5rem 1rem;
-      background-color: #666;
-      color: #fff;
-      border: none;
+    /* ブログ・お知らせの各投稿リスト */
+    .blog-post, .oshirase-post, .post {
+      border-bottom: 1px dashed orange;
+      padding: 10px 0;
       cursor: pointer;
-      font-size: 0.9rem;
+    }
+    .blog-post h3, .oshirase-post h3, .post h2 {
+      margin: 0;
+    }
+    .date {
+      font-size: 0.8rem;
+      color: orange;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>レトロ掲示板＆ブログ</h1>
-  </header>
-  <nav>
-    <button id="bbs-tab" class="active">掲示板</button>
-    <button id="blog-tab">ブログ</button>
-  </nav>
-  
-  <!-- 掲示板セクション -->
-  <div id="bbs-section" class="container">
-    <h2>掲示板投稿一覧</h2>
-    <div id="bbs-posts">
-      <p>読み込み中…</p>
+  <!-- 固定ヘッダー -->
+  <header class="fixed-header">
+    <div class="header-image-row"></div>
+    <div class="header-overlay">
+      <div class="header-title">regahonpo</div>
+      <button id="home-button" class="action-btn">ホーム</button>
     </div>
-    <button id="new-post" class="action-btn">新規投稿</button>
+  </header>
+
+  <!-- 固定サイドバー（左側） -->
+  <div class="sidebar">
+    <h2>商品一覧</h2>
+    <ul>
+      <li><a href="#" id="nav-blog">ブログ</a></li>
+      <li><a href="#" id="nav-bbs">BBS</a></li>
+      <li><a href="#" id="nav-oshirase">お知らせ</a></li>
+    </ul>
   </div>
-  
-  <!-- ブログセクション（初期は非表示） -->
-  <div id="blog-section" class="container" style="display: none;">
-    <!-- ブログ一覧表示エリア -->
-    <div id="blog-list">
-      <h2>ブログ投稿一覧</h2>
-      <div id="blog-posts">
+
+  <!-- メインコンテンツエリア -->
+  <div class="main-content">
+    <!-- ホーム（商品一覧）セクション -->
+    <div id="section-home" class="content-section">
+      <h2>商品一覧</h2>
+      <p>ここに商品の一覧を表示します。（例：サンプル商品など）</p>
+    </div>
+
+    <!-- ブログセクション -->
+    <div id="section-blog" class="content-section">
+      <div id="blog-list">
+        <h2>ブログ投稿一覧</h2>
+        <div id="blog-posts">
+          <p>読み込み中…</p>
+        </div>
+        <button id="new-blog" class="action-btn">新規ブログ投稿</button>
+      </div>
+      <div id="blog-detail" style="display:none;">
+        <h2 id="blog-title"></h2>
+        <div id="blog-content"></div>
+        <button id="back-blog" class="action-btn">一覧に戻る</button>
+      </div>
+    </div>
+
+    <!-- BBSセクション -->
+    <div id="section-bbs" class="content-section">
+      <h2>BBS投稿一覧</h2>
+      <div id="bbs-posts">
         <p>読み込み中…</p>
       </div>
-      <!-- 新規ブログ投稿（GitHub 上でファイル作成画面へ遷移） -->
-      <button id="new-blog" class="action-btn">新規ブログ投稿</button>
+      <button id="new-post" class="action-btn">新規投稿</button>
     </div>
-    <!-- ブログ詳細表示エリア -->
-    <div id="blog-detail">
-      <!-- タイトル -->
-      <h2 id="blog-title"></h2>
-      <!-- コンテンツ -->
-      <div id="blog-content"></div>
-      <!-- 戻るボタン -->
-      <button id="back-button">一覧に戻る</button>
+
+    <!-- お知らせセクション -->
+    <div id="section-oshirase" class="content-section">
+      <div id="oshirase-list">
+        <h2>お知らせ一覧</h2>
+        <div id="oshirase-posts">
+          <p>読み込み中…</p>
+        </div>
+        <button id="new-oshirase" class="action-btn">新規お知らせ投稿</button>
+      </div>
+      <div id="oshirase-detail" style="display:none;">
+        <h2 id="oshirase-title"></h2>
+        <div id="oshirase-content"></div>
+        <button id="back-oshirase" class="action-btn">一覧に戻る</button>
+      </div>
     </div>
   </div>
 
@@ -153,53 +192,129 @@
      **********************************/
     const owner = 'Emon2358';  // 例: 'tanaka'
     const repo  = 'regahonpo';        // 例: 'bbs-repo'
-    // ブログ投稿は同一リポジトリ内の "blog" フォルダを対象とします
 
     /**********************************
-     * タブ切替の処理
+     * セクション表示・ナビ更新
      **********************************/
-    const bbsTab = document.getElementById('bbs-tab');
-    const blogTab = document.getElementById('blog-tab');
-    const bbsSection = document.getElementById('bbs-section');
-    const blogSection = document.getElementById('blog-section');
-
-    bbsTab.addEventListener('click', () => {
-      bbsTab.classList.add('active');
-      blogTab.classList.remove('active');
-      bbsSection.style.display = 'block';
-      blogSection.style.display = 'none';
-    });
-    blogTab.addEventListener('click', () => {
-      blogTab.classList.add('active');
-      bbsTab.classList.remove('active');
-      blogSection.style.display = 'block';
-      bbsSection.style.display = 'none';
-      // 初回のみブログ投稿一覧を読み込む
-      if (!blogSection.dataset.loaded) {
-        fetchBlogPosts();
-        blogSection.dataset.loaded = true;
+    function showSection(sectionId) {
+      const sections = document.querySelectorAll('.content-section');
+      sections.forEach(sec => sec.style.display = 'none');
+      document.getElementById(sectionId).style.display = 'block';
+    }
+    function updateActiveNav(activeId) {
+      const navLinks = document.querySelectorAll('.sidebar a');
+      navLinks.forEach(link => { link.classList.remove('active'); });
+      if (activeId) {
+        document.getElementById(activeId).classList.add('active');
       }
+    }
+
+    // 初期表示はホーム（商品一覧）
+    showSection('section-home');
+
+    /**********************************
+     * サイドバー・ヘッダーのナビ操作
+     **********************************/
+    document.getElementById('home-button').addEventListener('click', function(e) {
+      e.preventDefault();
+      showSection('section-home');
+      updateActiveNav(null);
+    });
+    let blogLoaded = false, bbsLoaded = false, oshiraseLoaded = false;
+    document.getElementById('nav-blog').addEventListener('click', function(e) {
+      e.preventDefault();
+      showSection('section-blog');
+      updateActiveNav('nav-blog');
+      if (!blogLoaded) { fetchBlogPosts(); blogLoaded = true; }
+    });
+    document.getElementById('nav-bbs').addEventListener('click', function(e) {
+      e.preventDefault();
+      showSection('section-bbs');
+      updateActiveNav('nav-bbs');
+      if (!bbsLoaded) { fetchBbsPosts(); bbsLoaded = true; }
+    });
+    document.getElementById('nav-oshirase').addEventListener('click', function(e) {
+      e.preventDefault();
+      showSection('section-oshirase');
+      updateActiveNav('nav-oshirase');
+      if (!oshiraseLoaded) { fetchOshirasePosts(); oshiraseLoaded = true; }
     });
 
     /**********************************
-     * 掲示板（BBS）機能
+     * ブログ機能（blog フォルダ内の Markdown ファイル）
+     **********************************/
+    async function fetchBlogPosts() {
+      const postsContainer = document.getElementById('blog-posts');
+      try {
+        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/blog`;
+        const response = await fetch(apiUrl);
+        if (!response.ok) throw new Error('ブログ投稿の読み込みに失敗しました。');
+        const files = await response.json();
+        displayBlogPosts(files);
+      } catch(error) {
+        console.error(error);
+        postsContainer.innerHTML = '<p>ブログ投稿の読み込みに失敗しました。</p>';
+      }
+    }
+    function displayBlogPosts(files) {
+      const postsContainer = document.getElementById('blog-posts');
+      postsContainer.innerHTML = '';
+      const mdFiles = files.filter(file => file.name.endsWith('.md'));
+      if (mdFiles.length === 0) {
+        postsContainer.innerHTML = '<p>現在、ブログ投稿はありません。</p>';
+        return;
+      }
+      mdFiles.sort((a, b) => b.name.localeCompare(a.name));
+      mdFiles.forEach(file => {
+        const postDiv = document.createElement('div');
+        postDiv.className = 'blog-post';
+        const title = file.name.replace('.md', '');
+        const titleEl = document.createElement('h3');
+        titleEl.textContent = title;
+        postDiv.appendChild(titleEl);
+        postDiv.addEventListener('click', () => { loadBlogPost(file); });
+        postsContainer.appendChild(postDiv);
+      });
+    }
+    async function loadBlogPost(file) {
+      try {
+        const response = await fetch(file.download_url);
+        if (!response.ok) throw new Error('ブログ投稿の読み込みに失敗しました。');
+        const markdown = await response.text();
+        const htmlContent = marked.parse(markdown);
+        document.getElementById('blog-title').textContent = file.name.replace('.md', '');
+        document.getElementById('blog-content').innerHTML = htmlContent;
+        document.getElementById('blog-list').style.display = 'none';
+        document.getElementById('blog-detail').style.display = 'block';
+      } catch(error) {
+        console.error(error);
+        alert('ブログ投稿の読み込みに失敗しました。');
+      }
+    }
+    document.getElementById('back-blog').addEventListener('click', function() {
+      document.getElementById('blog-detail').style.display = 'none';
+      document.getElementById('blog-list').style.display = 'block';
+    });
+    document.getElementById('new-blog').addEventListener('click', function() {
+      window.location.href = `https://github.com/${owner}/${repo}/new/main?filename=blog/`;
+    });
+
+    /**********************************
+     * BBS機能（GitHub Issue を利用）
      **********************************/
     async function fetchBbsPosts() {
       const postsContainer = document.getElementById('bbs-posts');
       try {
         const apiUrl = `https://api.github.com/repos/${owner}/${repo}/issues?state=open`;
         const response = await fetch(apiUrl);
-        if (!response.ok) {
-          throw new Error('投稿の読み込みに失敗しました。');
-        }
+        if (!response.ok) throw new Error('BBS投稿の読み込みに失敗しました。');
         const issues = await response.json();
         displayBbsPosts(issues);
-      } catch (error) {
+      } catch(error) {
         console.error(error);
-        postsContainer.innerHTML = '<p>投稿の読み込みに失敗しました。</p>';
+        postsContainer.innerHTML = '<p>BBS投稿の読み込みに失敗しました。</p>';
       }
     }
-
     function displayBbsPosts(issues) {
       const postsContainer = document.getElementById('bbs-posts');
       postsContainer.innerHTML = '';
@@ -210,121 +325,81 @@
       issues.forEach(issue => {
         const postDiv = document.createElement('div');
         postDiv.className = 'post';
-
-        // タイトル
         const titleEl = document.createElement('h2');
         titleEl.textContent = issue.title;
         postDiv.appendChild(titleEl);
-
-        // 投稿日時
         const dateEl = document.createElement('p');
         dateEl.className = 'date';
         dateEl.textContent = '投稿日時: ' + new Date(issue.created_at).toLocaleString();
         postDiv.appendChild(dateEl);
-
-        // 本文
         const bodyEl = document.createElement('p');
         bodyEl.textContent = issue.body || '(本文なし)';
         postDiv.appendChild(bodyEl);
-
         postsContainer.appendChild(postDiv);
       });
     }
+    document.getElementById('new-post').addEventListener('click', function() {
+      window.location.href = `https://github.com/${owner}/${repo}/issues/new`;
+    });
 
     /**********************************
-     * ブログ機能（GitHub Pages 内の blog フォルダ利用）
+     * お知らせ機能（oshirase フォルダ内の Markdown ファイル）
      **********************************/
-    // ブログ一覧を取得
-    async function fetchBlogPosts() {
-      const postsContainer = document.getElementById('blog-posts');
+    async function fetchOshirasePosts() {
+      const postsContainer = document.getElementById('oshirase-posts');
       try {
-        // GitHub API で "blog" フォルダ内のファイル一覧を取得
-        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/blog`;
+        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/oshirase`;
         const response = await fetch(apiUrl);
-        if (!response.ok) {
-          throw new Error('ブログ投稿の読み込みに失敗しました。');
-        }
+        if (!response.ok) throw new Error('お知らせの読み込みに失敗しました。');
         const files = await response.json();
-        displayBlogPosts(files);
-      } catch (error) {
+        displayOshirasePosts(files);
+      } catch(error) {
         console.error(error);
-        postsContainer.innerHTML = '<p>ブログ投稿の読み込みに失敗しました。</p>';
+        postsContainer.innerHTML = '<p>お知らせの読み込みに失敗しました。</p>';
       }
     }
-
-    // 取得した Markdown ファイル一覧を表示（タイトルはファイル名から拡張子を除いたもの）
-    function displayBlogPosts(files) {
-      const postsContainer = document.getElementById('blog-posts');
+    function displayOshirasePosts(files) {
+      const postsContainer = document.getElementById('oshirase-posts');
       postsContainer.innerHTML = '';
-      // Markdown ファイル（.md）をフィルター
       const mdFiles = files.filter(file => file.name.endsWith('.md'));
       if (mdFiles.length === 0) {
-        postsContainer.innerHTML = '<p>現在、ブログ投稿はありません。</p>';
+        postsContainer.innerHTML = '<p>現在、お知らせはありません。</p>';
         return;
       }
-      // ファイル名（タイトル）の降順（最新順）に並べ替え（※ファイル名に日付等を含めると効果的）
       mdFiles.sort((a, b) => b.name.localeCompare(a.name));
       mdFiles.forEach(file => {
         const postDiv = document.createElement('div');
-        postDiv.className = 'blog-post';
-        // タイトルはファイル名から拡張子を除いたもの
+        postDiv.className = 'oshirase-post';
         const title = file.name.replace('.md', '');
         const titleEl = document.createElement('h3');
         titleEl.textContent = title;
         postDiv.appendChild(titleEl);
-        // クリック時にブログ詳細表示へ
-        postDiv.addEventListener('click', () => {
-          loadBlogPost(file);
-        });
+        postDiv.addEventListener('click', () => { loadOshirasePost(file); });
         postsContainer.appendChild(postDiv);
       });
     }
-
-    // ブログ投稿の Markdown ファイルを取得して表示
-    async function loadBlogPost(file) {
+    async function loadOshirasePost(file) {
       try {
         const response = await fetch(file.download_url);
-        if (!response.ok) {
-          throw new Error('ブログ投稿の読み込みに失敗しました。');
-        }
+        if (!response.ok) throw new Error('お知らせの読み込みに失敗しました。');
         const markdown = await response.text();
-        // Markdown を HTML に変換（marked ライブラリを使用）
         const htmlContent = marked.parse(markdown);
-        // タイトル（ファイル名から拡張子除去）
-        const title = file.name.replace('.md', '');
-        // 詳細表示エリアに反映
-        document.getElementById('blog-title').textContent = title;
-        document.getElementById('blog-content').innerHTML = htmlContent;
-        // 一覧表示を隠して詳細表示を表示
-        document.getElementById('blog-list').style.display = 'none';
-        document.getElementById('blog-detail').style.display = 'block';
-      } catch (error) {
+        document.getElementById('oshirase-title').textContent = file.name.replace('.md', '');
+        document.getElementById('oshirase-content').innerHTML = htmlContent;
+        document.getElementById('oshirase-list').style.display = 'none';
+        document.getElementById('oshirase-detail').style.display = 'block';
+      } catch(error) {
         console.error(error);
-        alert('ブログ投稿の読み込みに失敗しました。');
+        alert('お知らせの読み込みに失敗しました。');
       }
     }
-
-    // 詳細表示から一覧に戻る
-    document.getElementById('back-button').addEventListener('click', () => {
-      document.getElementById('blog-detail').style.display = 'none';
-      document.getElementById('blog-list').style.display = 'block';
+    document.getElementById('back-oshirase').addEventListener('click', function() {
+      document.getElementById('oshirase-detail').style.display = 'none';
+      document.getElementById('oshirase-list').style.display = 'block';
     });
-
-    /**********************************
-     * 各ボタン押下時の処理
-     **********************************/
-    // 掲示板「新規投稿」ボタン（GitHub Issue の新規作成画面へ）
-    document.getElementById('new-post').addEventListener('click', () => {
-      window.location.href = `https://github.com/${owner}/${repo}/issues/new`;
+    document.getElementById('new-oshirase').addEventListener('click', function() {
+      window.location.href = `https://github.com/${owner}/${repo}/new/main?filename=oshirase/`;
     });
-    // ブログ「新規ブログ投稿」ボタン（GitHub の新規ファイル作成画面へ）
-    document.getElementById('new-blog').addEventListener('click', () => {
-      // ※デフォルトブランチが main の場合。必要に応じて branch 名を変更してください。
-      window.location.href = `https://github.com/${owner}/${repo}/new/main?filename=blog/`;
-    });
-
-    // 初回は掲示板の投稿を読み込む
-    fetchBbsPosts();
   </script>
 </body>
 </html>
