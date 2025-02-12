@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>レトロ掲示板＆ブログ</title>
+  <title>regahonpo⑧</title>
   <!-- Markdown → HTML 変換用 marked.js -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
-    /* 全体設定：背景白・文字オレンジ・モノスペース体 */
+    /* 全体設定：背景白、文字オレンジ、モノスペース体 */
     body {
       margin: 0;
       padding: 0;
@@ -15,38 +15,42 @@
       font-family: "Courier New", Courier, monospace;
       color: orange;
     }
-    /* 固定ヘッダー */
+    /* 固定ヘッダー（全体高さ 120px） */
     .fixed-header {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      height: 80px;
+      height: 120px;
       background: #ffffff;
       z-index: 1000;
       border-bottom: 2px solid orange;
     }
-    /* ヘッダー上部：横一列に画像を繰り返し表示 */
+    /* ヘッダー上部：背景画像を横一列に並べて表示（高さ 120px） */
     .header-image-row {
-      height: 40px;
+      height: 120px;
       background-image: url('https://sanlabo.net/images/A00000859.jpg?1384752427');
       background-repeat: repeat-x;
-      background-size: auto 40px;
+      background-size: auto 120px;
     }
-    /* ヘッダー下部：重ねる文字とホームボタン */
+    /* ヘッダーオーバーレイ：背景画像と重ねてタイトルとホームボタンを配置 */
     .header-overlay {
-      position: relative;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 20px;
-      height: 40px;
-      margin-top: -20px; /* 画像と重なるように */
+      height: 120px;
+      pointer-events: none; /* 背景のクリックを防ぐため */
     }
     .header-title {
-      font-size: 24px;
+      font-size: 36px;
       font-weight: bold;
       color: orange;
+      pointer-events: auto;
     }
     .action-btn {
       background: none;
@@ -55,11 +59,12 @@
       padding: 5px 10px;
       cursor: pointer;
       font-size: 14px;
+      pointer-events: auto;
     }
     /* 固定左サイドバー */
     .sidebar {
       position: fixed;
-      top: 80px; /* ヘッダー下部から */
+      top: 120px; /* ヘッダー下部から */
       left: 0;
       width: 200px;
       bottom: 0;
@@ -91,7 +96,7 @@
     /* メインコンテンツ（ヘッダー・サイドバー分の余白を確保） */
     .main-content {
       margin-left: 220px;
-      margin-top: 80px;
+      margin-top: 120px;
       padding: 20px;
     }
     /* 各セクション */
@@ -101,7 +106,26 @@
     .content-section h2 {
       margin-top: 0;
     }
-    /* ブログ・お知らせの各投稿リスト */
+    /* ホーム（商品一覧）内のプロフィール表示 */
+    #profile-container {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    #profile-container img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 2px solid orange;
+    }
+    #profile-container a {
+      font-size: 24px;
+      text-decoration: none;
+      color: orange;
+      font-weight: bold;
+    }
+    /* ブログ・お知らせ・BBSの投稿リスト */
     .blog-post, .oshirase-post, .post {
       border-bottom: 1px dashed orange;
       padding: 10px 0;
@@ -130,6 +154,7 @@
   <div class="sidebar">
     <h2>商品一覧</h2>
     <ul>
+      <li><a href="#" id="nav-home">ホーム</a></li>
       <li><a href="#" id="nav-blog">ブログ</a></li>
       <li><a href="#" id="nav-bbs">BBS</a></li>
       <li><a href="#" id="nav-oshirase">お知らせ</a></li>
@@ -138,10 +163,13 @@
 
   <!-- メインコンテンツエリア -->
   <div class="main-content">
-    <!-- ホーム（商品一覧）セクション -->
+    <!-- ホーム（商品一覧）セクション：GitHubのプロフィール情報を表示 -->
     <div id="section-home" class="content-section">
       <h2>商品一覧</h2>
-      <p>ここに商品の一覧を表示します。（例：サンプル商品など）</p>
+      <div id="profile-container">
+        <img id="profile-avatar" src="" alt="GitHub Avatar">
+        <a id="profile-name" href="" target="_blank">GitHub Name</a>
+      </div>
     </div>
 
     <!-- ブログセクション -->
@@ -208,9 +236,9 @@
         document.getElementById(activeId).classList.add('active');
       }
     }
-
-    // 初期表示はホーム（商品一覧）
+    // 初期表示はホーム
     showSection('section-home');
+    updateActiveNav('nav-home');
 
     /**********************************
      * サイドバー・ヘッダーのナビ操作
@@ -218,7 +246,14 @@
     document.getElementById('home-button').addEventListener('click', function(e) {
       e.preventDefault();
       showSection('section-home');
-      updateActiveNav(null);
+      updateActiveNav('nav-home');
+    });
+    document.getElementById('nav-home').addEventListener('click', function(e) {
+      e.preventDefault();
+      showSection('section-home');
+      updateActiveNav('nav-home');
+      // ホームは毎回プロフィール情報を更新
+      fetchGitHubProfile();
     });
     let blogLoaded = false, bbsLoaded = false, oshiraseLoaded = false;
     document.getElementById('nav-blog').addEventListener('click', function(e) {
@@ -239,6 +274,27 @@
       updateActiveNav('nav-oshirase');
       if (!oshiraseLoaded) { fetchOshirasePosts(); oshiraseLoaded = true; }
     });
+
+    /**********************************
+     * ホーム：GitHubプロフィール情報の取得
+     **********************************/
+    async function fetchGitHubProfile() {
+      const profileContainer = document.getElementById('profile-container');
+      try {
+        const response = await fetch(`https://api.github.com/users/${owner}`);
+        if (!response.ok) throw new Error('プロフィールの取得に失敗しました。');
+        const data = await response.json();
+        document.getElementById('profile-avatar').src = data.avatar_url;
+        // 名前が設定されていなければ login 名を表示
+        document.getElementById('profile-name').textContent = data.name || data.login;
+        document.getElementById('profile-name').href = data.html_url;
+      } catch (error) {
+        console.error(error);
+        profileContainer.innerHTML = '<p>プロフィール情報の取得に失敗しました。</p>';
+      }
+    }
+    // 初期表示時にもホーム情報を取得
+    fetchGitHubProfile();
 
     /**********************************
      * ブログ機能（blog フォルダ内の Markdown ファイル）
