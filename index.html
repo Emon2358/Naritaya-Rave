@@ -138,6 +138,57 @@
       font-size: 0.8rem;
       color: orange;
     }
+    
+    /* スマホ等の画面幅が狭い場合のレスポンシブ対応 */
+    @media screen and (max-width: 768px) {
+      /* ヘッダー関連 */
+      .fixed-header {
+        height: 80px;
+      }
+      .header-image-row {
+        height: 80px;
+        background-size: auto 80px;
+      }
+      .header-overlay {
+        height: 80px;
+        padding: 0 10px;
+      }
+      .header-title {
+        font-size: 24px;
+      }
+      .action-btn {
+        font-size: 12px;
+        padding: 3px 5px;
+      }
+      /* サイドバーを上部ナビに変更 */
+      .sidebar {
+        position: static;
+        width: 100%;
+        height: auto;
+        margin-top: 80px; /* ヘッダー分のスペースを確保 */
+        border-right: none;
+        border-bottom: 2px solid orange;
+        padding: 10px 0;
+      }
+      .sidebar h2 {
+        display: none;
+      }
+      .sidebar ul {
+        display: flex;
+        justify-content: space-around;
+        padding: 0;
+        margin: 0;
+      }
+      .sidebar li {
+        margin: 0;
+      }
+      /* メインコンテンツの余白調整 */
+      .main-content {
+        margin-left: 0;
+        margin-top: 0;
+        padding: 10px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -150,7 +201,7 @@
     </div>
   </header>
 
-  <!-- 固定サイドバー（左側） -->
+  <!-- 固定サイドバー（左側／スマホでは上部ナビに変化） -->
   <div class="sidebar">
     <h2>商品一覧</h2>
     <ul>
@@ -362,7 +413,7 @@
     document.getElementById('back-blog').addEventListener('click', function() {
       document.getElementById('blog-detail').style.display = 'none';
       document.getElementById('blog-list').style.display = 'block';
-      });
+    });
     document.getElementById('new-blog').addEventListener('click', function() {
       window.location.href = `https://github.com/${owner}/${repo}/new/main?filename=blog/`;
     });
