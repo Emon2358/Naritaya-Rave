@@ -3,37 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>regahonpo⑧</title>
+  <title>Naritaya Rave</title>
   <!-- Markdown → HTML 変換用 marked.js -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- クールで奇抜なフォント -->
+  <link href="https://fonts.googleapis.com/css2?family=Rock+Salt&display=swap" rel="stylesheet">
   <style>
-    /* 全体設定：背景白、文字オレンジ、モノスペース体 */
+    /* 全体設定：グラデーション背景、標準フォント */
     body {
       margin: 0;
       padding: 0;
-      background: #ffffff;
-      font-family: "Courier New", Courier, monospace;
-      color: orange;
+      background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      color: #333;
     }
-    /* 固定ヘッダー（全体高さ 120px） */
+    /* 固定ヘッダー（高さ120px＋アニメーション） */
     .fixed-header {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       height: 120px;
-      background: #ffffff;
+      background: rgba(255,255,255,0.9);
       z-index: 1000;
-      border-bottom: 2px solid orange;
+      border-bottom: 3px solid #ff4081;
+      overflow: hidden;
     }
-    /* ヘッダー上部：背景画像を横一列に並べて表示（高さ 120px） */
+    /* ヘッダー上部：背景画像を横に流すアニメーション */
     .header-image-row {
       height: 120px;
       background-image: url('https://sanlabo.net/images/A00000859.jpg?1384752427');
       background-repeat: repeat-x;
       background-size: auto 120px;
+      animation: slide 20s linear infinite;
     }
-    /* ヘッダーオーバーレイ：背景画像と重ねてタイトルとホームボタンを配置 */
+    @keyframes slide {
+      from { background-position: 0 0; }
+      to { background-position: -1000px 0; }
+    }
+    /* ヘッダーオーバーレイ：タイトルとホームボタン */
     .header-overlay {
       position: absolute;
       top: 0;
@@ -44,38 +52,48 @@
       justify-content: space-between;
       padding: 0 20px;
       height: 120px;
-      pointer-events: none; /* 背景のクリックを防ぐため */
+      pointer-events: none;
     }
     .header-title {
-      font-size: 36px;
+      font-size: 42px;
       font-weight: bold;
-      color: orange;
+      color: #ff4081;
       pointer-events: auto;
+      font-family: 'Rock Salt', cursive;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
     }
     .action-btn {
       background: none;
-      border: 1px solid orange;
-      color: orange;
-      padding: 5px 10px;
+      border: 2px solid #ff4081;
+      color: #ff4081;
+      padding: 8px 12px;
       cursor: pointer;
       font-size: 14px;
       pointer-events: auto;
+      transition: transform 0.2s, background-color 0.2s;
     }
-    /* 固定左サイドバー */
+    .action-btn:hover {
+      transform: scale(1.1);
+      background-color: #ff4081;
+      color: #fff;
+    }
+    /* 固定左サイドバー（またはスマホ時は上部ナビ） */
     .sidebar {
       position: fixed;
-      top: 120px; /* ヘッダー下部から */
+      top: 120px;
       left: 0;
-      width: 200px;
+      width: 220px;
       bottom: 0;
-      background: #ffffff;
-      border-right: 2px solid orange;
-      padding: 10px;
+      background: rgba(255,255,255,0.95);
+      border-right: 3px solid #ff4081;
+      padding: 20px 10px;
       box-sizing: border-box;
+      overflow-y: auto;
     }
     .sidebar h2 {
       margin-top: 0;
-      font-size: 18px;
+      font-size: 20px;
+      color: #ff4081;
     }
     .sidebar ul {
       list-style: none;
@@ -83,21 +101,28 @@
       margin: 0;
     }
     .sidebar li {
-      margin: 10px 0;
+      margin: 15px 0;
     }
     .sidebar a {
       text-decoration: none;
-      color: orange;
+      color: #333;
       font-weight: bold;
+      transition: transform 0.2s;
+    }
+    .sidebar a:hover {
+      transform: scale(1.1);
     }
     .sidebar a.active {
       text-decoration: underline;
+      color: #ff4081;
     }
-    /* メインコンテンツ（ヘッダー・サイドバー分の余白を確保） */
+    /* メインコンテンツ：ヘッダー・サイドバー分の余白確保 */
     .main-content {
-      margin-left: 220px;
+      margin-left: 240px;
       margin-top: 120px;
-      padding: 20px;
+      padding: 30px;
+      background: rgba(255,255,255,0.8);
+      min-height: calc(100vh - 120px);
     }
     /* 各セクション */
     .content-section {
@@ -105,8 +130,9 @@
     }
     .content-section h2 {
       margin-top: 0;
+      color: #ff4081;
     }
-    /* ホーム（商品一覧）内のプロフィール表示 */
+    /* ホーム内のプロフィール表示 */
     #profile-container {
       display: flex;
       align-items: center;
@@ -117,17 +143,17 @@
       width: 100px;
       height: 100px;
       border-radius: 50%;
-      border: 2px solid orange;
+      border: 3px solid #ff4081;
     }
     #profile-container a {
       font-size: 24px;
       text-decoration: none;
-      color: orange;
+      color: #ff4081;
       font-weight: bold;
     }
     /* ブログ・お知らせ・BBSの投稿リスト */
     .blog-post, .oshirase-post, .post {
-      border-bottom: 1px dashed orange;
+      border-bottom: 1px dashed #ff4081;
       padding: 10px 0;
       cursor: pointer;
     }
@@ -136,58 +162,27 @@
     }
     .date {
       font-size: 0.8rem;
-      color: orange;
+      color: #ff4081;
     }
-    
-    /* スマホ等の画面幅が狭い場合のレスポンシブ対応 */
+    /* リスポンシブ対応 */
     @media screen and (max-width: 768px) {
-      /* ヘッダー関連 */
-      .fixed-header {
-        height: 80px;
-      }
-      .header-image-row {
-        height: 80px;
-        background-size: auto 80px;
-      }
-      .header-overlay {
-        height: 80px;
-        padding: 0 10px;
-      }
-      .header-title {
-        font-size: 24px;
-      }
-      .action-btn {
-        font-size: 12px;
-        padding: 3px 5px;
-      }
-      /* サイドバーを上部ナビに変更 */
+      .fixed-header { height: 80px; }
+      .header-image-row { height: 80px; background-size: auto 80px; }
+      .header-overlay { height: 80px; padding: 0 10px; }
+      .header-title { font-size: 28px; }
+      .action-btn { font-size: 12px; padding: 5px 8px; }
       .sidebar {
         position: static;
         width: 100%;
         height: auto;
-        margin-top: 80px; /* ヘッダー分のスペースを確保 */
+        margin-top: 80px;
         border-right: none;
-        border-bottom: 2px solid orange;
+        border-bottom: 3px solid #ff4081;
         padding: 10px 0;
       }
-      .sidebar h2 {
-        display: none;
-      }
-      .sidebar ul {
-        display: flex;
-        justify-content: space-around;
-        padding: 0;
-        margin: 0;
-      }
-      .sidebar li {
-        margin: 0;
-      }
-      /* メインコンテンツの余白調整 */
-      .main-content {
-        margin-left: 0;
-        margin-top: 0;
-        padding: 10px;
-      }
+      .sidebar h2 { display: none; }
+      .sidebar ul { display: flex; justify-content: space-around; margin: 0; }
+      .main-content { margin-left: 0; margin-top: 0; padding: 10px; }
     }
   </style>
 </head>
@@ -196,14 +191,14 @@
   <header class="fixed-header">
     <div class="header-image-row"></div>
     <div class="header-overlay">
-      <div class="header-title">regahonpo</div>
+      <div class="header-title">Naritaya Rave</div>
       <button id="home-button" class="action-btn">ホーム</button>
     </div>
   </header>
 
   <!-- 固定サイドバー（左側／スマホでは上部ナビに変化） -->
   <div class="sidebar">
-    <h2>商品一覧</h2>
+    <h2>メニュー</h2>
     <ul>
       <li><a href="#" id="nav-home">ホーム</a></li>
       <li><a href="#" id="nav-blog">ブログ</a></li>
@@ -216,7 +211,7 @@
   <div class="main-content">
     <!-- ホーム（商品一覧）セクション：GitHubのプロフィール情報を表示 -->
     <div id="section-home" class="content-section">
-      <h2>商品一覧</h2>
+      <h2>ホーム</h2>
       <div id="profile-container">
         <img id="profile-avatar" src="" alt="GitHub Avatar">
         <a id="profile-name" href="" target="_blank">GitHub Name</a>
@@ -280,10 +275,10 @@
 
   <script>
     /**********************************
-     * GitHub の設定（変更必須）
+     * GitHub の設定（必要に応じて変更）
      **********************************/
-    const owner = 'Emon2358';  // 例: 'tanaka'
-    const repo  = 'regahonpo';        // 例: 'bbs-repo'
+    const owner = 'Emon2358';
+    const repo  = 'regahonpo';
 
     /**********************************
      * セクション表示・ナビ更新
@@ -311,15 +306,15 @@
       e.preventDefault();
       showSection('section-home');
       updateActiveNav('nav-home');
+      fetchGitHubProfile();
     });
     document.getElementById('nav-home').addEventListener('click', function(e) {
       e.preventDefault();
       showSection('section-home');
       updateActiveNav('nav-home');
-      // ホームは毎回プロフィール情報を更新
       fetchGitHubProfile();
     });
-    let blogLoaded = false, bbsLoaded = false, oshiraseLoaded = false;
+    let blogLoaded = false, oshiraseLoaded = false;
     document.getElementById('nav-blog').addEventListener('click', function(e) {
       e.preventDefault();
       showSection('section-blog');
@@ -348,7 +343,6 @@
         if (!response.ok) throw new Error('プロフィールの取得に失敗しました。');
         const data = await response.json();
         document.getElementById('profile-avatar').src = data.avatar_url;
-        // 名前が設定されていなければ login 名を表示
         document.getElementById('profile-name').textContent = data.name || data.login;
         document.getElementById('profile-name').href = data.html_url;
       } catch (error) {
@@ -356,7 +350,6 @@
         profileContainer.innerHTML = '<p>プロフィール情報の取得に失敗しました。</p>';
       }
     }
-    // 初期表示時にもホーム情報を取得
     fetchGitHubProfile();
 
     /**********************************
